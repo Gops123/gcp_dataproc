@@ -1,0 +1,5 @@
+region = "us-west1"
+gcp_project = "third-anvil-203107"
+credentials = "credentials.json"
+name = "Gopal"
+subnet_cidr = "10.40.0.0/24"

@@ -4,33 +4,35 @@ provider "google" {
 	region = "${var.region}"
 }
 
-resource "google_compute_network" "vpc" {
-	name = "${var.name}-vpc"
-	auto_create_subnetworks = "false"
+
+
+
+
+resource "google_dataproc_cluster" "data" {
+    name       = "${var.name}-data"
+    region     = "${var.region}"
+   
+ cluster_config {
+        master_config {
+            num_instances     = 1
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+            }
+         } 
+
+        worker_config {
+            num_instances     = 2
+            machine_type      = "n1-standard-1"
+            disk_config {
+                boot_disk_size_gb = 10
+                num_local_ssds    = 1
+            }
+        }
+         gce_cluster_config {
+            #network = "default"
+            subnetwork = "10.146.0.0/20"
+            tags    = ["foo", "bar"]
+        }
+   }   
 }
-
-resource "google_compute_subnetwork" "subnet" {
-	name = "${var.name}-subnet"
-	ip_cidr_range = "${var.subnet_cidr}"
-	network = "${var.name}-vpc"
-        depends_on = ["google_compute_network.vpc"] 
-	region = "${var.region}"
-	
-}
-
-resource "google_compute_firewall" "firewall" {
-	name = "${var.name}-firewall"
-	network = "${google_compute_network.vpc.name}"
-	
-	allow{
-		protocol = "icmp"
-		
-	}
-	allow{
-		protocol = "tcp"
-		ports = ["22"]
-	}
-	source_ranges = ["0.0.0.0/0"]
-}
-
-
